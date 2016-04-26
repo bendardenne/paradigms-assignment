@@ -74,15 +74,29 @@ class TC_ContextTest < Test::Unit::TestCase
 	end
 	
 	def test_manager
+		assert_not_nil @myContext.manager 
+		
 		assert_not_nil Context.default.manager
 	
-		assert_not_nil @myContext.manager 
-
 		assert_same Context.default.manager, @myContext.manager 
 		
 		Context.default = nil
-		c = Context.new 
-		assert_not_nil c.manager
+		c = Context.new
+		assert_not_nil c.manager	
+	end
+
+	def test_directory
+		c = Context.new("Silent")
+		assert c.manager.directory.has_key? "Silent"
+		assert c.manager.directory.has_key? "default"
+
+		c.discard
 	
+		assert_false c.manager.directory.has_key? "Silent"
+
+		assert_raise(RuntimeError) { Context.default.discard }
+		Context.default.deactivate
+		assert_nothing_raised(RuntimeError) { Context.default.discard }
+		assert_not_nil Context.default
 	end
 end

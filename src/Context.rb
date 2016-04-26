@@ -4,21 +4,23 @@ require_relative 'ContextManager'
 
 class Context
 
-	attr_accessor :name
 	@@default, @manager = nil
 	
 	def initialize(name = nil)
 		@activationCount = 0
-		@name = name
+		if name != nil
+			self.name = name
+		end
 	end
 
 
 	## Getter
 	def self.default 
 		if @@default == nil
-			@@default = Context.new('default')
+			#@@default = Context.new('default')
+			@@default = Context.new
+			@@default.name = 'default'
 			@@default.activate
-			@@default.manager = ContextManager.new
 		end
 
 		return @@default
@@ -32,7 +34,11 @@ class Context
 	## Getter	
 	def manager 
 		if @manager == nil 
-			@manager = Context.default.manager 
+			if self == Context.default 
+				@manager = ContextManager.new
+			else
+				@manager = Context.default.manager 
+			end
 		end	
 
 		return @manager
@@ -41,6 +47,18 @@ class Context
 	## Setter
 	def manager=(newManager)
 		@manager = newManager
+	end
+
+	## Getter
+	def name 
+		@name
+	end
+
+	## Setter
+	def name=(newName)
+		# TODO remove previous from manager 
+		@name = newName
+		self.manager.directory[@name] = self
 	end
 
 	def activate
@@ -54,11 +72,14 @@ class Context
 	end
 
 	def active?
-		return @activationCount > 0
+		@activationCount > 0
 	end
 
 	def discard
-		
+		if active? 
+			raise 'Attempting to discard an active context'	
+		end
+		@manager.discard(self)		
 	end
 
 	def to_s

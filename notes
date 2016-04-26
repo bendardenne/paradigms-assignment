@@ -1,0 +1,9 @@
+*  Singleton methods : replace methods depending on context !
+
+
+
+REPORT :	
+	*	Manager singleton ?
+	*	key -> name  becomes  name -> key     Enforce unique names 
+	*	--->  with this, what if Context.new('default') ?? 
+
