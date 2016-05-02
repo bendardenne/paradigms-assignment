@@ -19,7 +19,7 @@ class ContextAdaptation
 	end
 
 	def to_s
-		"#{context}:#{adaptedClass}:#{selector}"
+		"#{context}##{adaptedClass}:#{selector}"
 	end
 
 end

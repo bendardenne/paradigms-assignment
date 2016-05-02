@@ -21,7 +21,6 @@ class Context
 	## Getter
 	def self.default 
 		if @@default == nil
-			#@@default = Context.new('default')
 			@@default = Context.new
 			@@default.name = 'default'
 			@@default.activate

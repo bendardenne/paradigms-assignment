@@ -1,12 +1,12 @@
 require_relative "Phone"
 
-class DiscreetPhone < Phone
+module DiscreetPhone 
 
-	def advertiseQuietly
+	def advertiseQuietly(call)
 		"Vibrate"
 	end
 	
-	def advertiseDiscreteBeep
+	def advertiseDiscreteBeep(call)
 		"Discrete beep"
 	end	
 

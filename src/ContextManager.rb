@@ -20,7 +20,8 @@ class ContextManager
 			if a.sameTarget? adaptation and a.context != Context.default
 				raise ArgumentError, "Cannot activate #{adaptation}: 
 					conflicts with activated adaptation #{a}"
-			end}
+			end
+		}
 
 		@activeAdaptations << adaptation
 		adaptation.deploy

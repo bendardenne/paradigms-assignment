@@ -1,8 +1,8 @@
 require_relative "Phone"
 
-class MulticallPhone < Phone
+module MulticallPhone
 
-	def advertiseWaitCall
+	def advertiseWaitCall(call)
 		"Call waiting signal"
 	end
 end

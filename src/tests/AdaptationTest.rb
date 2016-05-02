@@ -3,6 +3,8 @@
 require 'test/unit'
 require_relative '../Context'
 require_relative '../Phone/Phone.rb'
+require_relative '../Phone/DiscreetPhone.rb'
+require_relative '../Phone/MulticallPhone.rb'
 require_relative '../Phone/PhoneCall.rb'
 
 class AdaptationTest < Test::Unit::TestCase
@@ -14,31 +16,34 @@ class AdaptationTest < Test::Unit::TestCase
 
 	def test_simpleAdaptation
 		quietContext = Context.new("Quiet")
-		quietContext.adaptClass(Phone, :advertise, lambda { |p| "vibrate" })
+		quietMethod = DiscreetPhone.instance_method(:advertiseQuietly)
+		quietContext.adaptClass(Phone, :advertise, quietMethod)
 		
 		# Default behaviour
-		assert_equal @phone.advertise(@call), "ringtone"
+		assert_equal @phone.advertise(@call), "Ringtone"
 	
 		# Activate a context and check implementation	
 		assert_nothing_raised {quietContext.activate}
-		assert_equal @phone.advertise(@call), "vibrate"
+		assert_equal @phone.advertise(@call), "Vibrate"
 	
 		# Should go back to default	
 		assert_nothing_raised {quietContext.deactivate}
-		assert_equal @phone.advertise(@call), "ringtone"
+		assert_equal @phone.advertise(@call), "Ringtone"
 	end
 
 	def test_conflictingAdaptations
 		quietContext = Context.new("Quiet")
-		quietContext.adaptClass(Phone, :advertise, lambda { |p| "vibrate" })
+		quietMethod = DiscreetPhone.instance_method(:advertiseQuietly)
+		quietContext.adaptClass(Phone, :advertise, quietMethod)
 		
-		offHookContext = Context.new("Off-Hook")
-		offHookContext.adaptClass(Phone, :advertise, lambda{|p| "off-hook"})
+		waitSignalContext = Context.new("Off-Hook")
+		waitMethod = MulticallPhone.instance_method(:advertiseWaitCall)
+		waitSignalContext.adaptClass(Phone, :advertise, waitMethod)
 		
-		assert_nothing_raised { offHookContext.activate }
+		assert_nothing_raised { waitSignalContext.activate }
 		assert_raise(ArgumentError) { quietContext.activate }	
 
-		assert_nothing_raised { offHookContext.deactivate }
+		assert_nothing_raised { waitSignalContext.deactivate }
 	end
 
 	def test_invalidAdaptation
