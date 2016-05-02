@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require_relative 'Context'
+require_relative '../Context'
 
 class InfrastructureTests < Test::Unit::TestCase
 	def setup

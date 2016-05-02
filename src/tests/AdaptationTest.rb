@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require_relative 'Context'
-require_relative 'Phone/Phone.rb'
-require_relative 'Phone/PhoneCall.rb'
+require_relative '../Context'
+require_relative '../Phone/Phone.rb'
+require_relative '../Phone/PhoneCall.rb'
 
 class AdaptationTest < Test::Unit::TestCase
 	def setup
