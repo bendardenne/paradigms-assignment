@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 
+require 'set'
+
 require_relative 'ContextManager'
+require_relative 'ContextAdaptation'
 
 class Context
 
@@ -8,6 +11,7 @@ class Context
 	
 	def initialize(name = nil)
 		@activationCount = 0
+		@adaptations = Set.new
 		if name != nil
 			self.name = name
 		end
@@ -63,11 +67,16 @@ class Context
 
 	def activate
 		@activationCount += 1
+		activateAdaptations
 	end
 
 	def deactivate
 		if @activationCount > 0
 			@activationCount -= 1
+		end
+
+		if not active? 
+			deactivateAdaptations
 		end
 	end
 
@@ -80,6 +89,54 @@ class Context
 			raise 'Attempting to discard an active context'	
 		end
 		@manager.discard(self)		
+	end
+
+
+	def activateAdaptations
+		@adaptations.each{ |a| @manager.activateAdaptation(a) }
+	end
+	
+	def deactivateAdaptations
+		@adaptations.each{ |a| @manager.deactivateAdaptation(a) }
+	end
+
+	def adaptClass(adaptedClass, selector, implementation)
+		if adapts?(adaptedClass, selector)
+			raise ArgumentError, "#{self}already adapts #{adaptedClass}:#{selector}"
+		end
+		
+		adaptation = ContextAdaptation.new(self, adaptedClass, selector, implementation)	
+		@adaptations << adaptation							 
+
+		if not Context.default.adapts?(adaptedClass, selector)
+			defaultMethod = adaptedClass.instance_method(selector)
+			Context.default.adaptClass(adaptedClass, selector, defaultMethod)
+		end
+
+		if active? 
+			manager.activateAdaptation(adaptation)
+		end
+	end
+
+	def adapts?(aClass, selector)
+		
+		@adaptations.each { |adapted| 
+			if adapted.adaptedClass == aClass and adapted.selector == selector
+				return true
+			end
+		}
+		
+		return false
+	end
+
+	def getAdaptation(aClass, selector)
+		@adaptations.each{|a| 
+			if a.adaptedClass == aClass and a.selector == selector
+				return a
+			end
+		}
+
+		# TODO what if not in adaptations
 	end
 
 	def to_s

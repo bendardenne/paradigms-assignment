@@ -3,7 +3,7 @@
 require 'test/unit'
 require_relative 'Context'
 
-class TC_ContextTest < Test::Unit::TestCase
+class InfrastructureTests < Test::Unit::TestCase
 	def setup
 		@myContext = Context.new
 	end
