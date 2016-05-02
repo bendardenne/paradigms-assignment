@@ -36,7 +36,7 @@ class AdaptationTest < Test::Unit::TestCase
 		offHookContext.adaptClass(Phone, :advertise, lambda{|p| "off-hook"})
 		
 		assert_nothing_raised { offHookContext.activate }
-		assert_raise { quietContext.activate }	
+		assert_raise(ArgumentError) { quietContext.activate }	
 
 		assert_nothing_raised { offHookContext.deactivate }
 	end

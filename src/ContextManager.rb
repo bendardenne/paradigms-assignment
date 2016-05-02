@@ -18,7 +18,8 @@ class ContextManager
 		
 		@activeAdaptations.each {|a| 
 			if a.sameTarget? adaptation and a.context != Context.default
-				raise ArgumentError, "Conflicting adaptation activated"
+				raise ArgumentError, "Cannot activate #{adaptation}: 
+					conflicts with activated adaptation #{a}"
 			end}
 
 		@activeAdaptations << adaptation

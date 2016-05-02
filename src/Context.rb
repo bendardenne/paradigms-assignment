@@ -86,7 +86,7 @@ class Context
 
 	def discard
 		if active? 
-			raise 'Attempting to discard an active context'	
+			raise ArgumentError, 'Attempting to discard an active context'	
 		end
 		@manager.discard(self)		
 	end

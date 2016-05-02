@@ -75,7 +75,6 @@ class InfrastructureTests < Test::Unit::TestCase
 	
 	def test_manager
 		assert_not_nil @myContext.manager 
-		
 		assert_not_nil Context.default.manager
 	
 		assert_same Context.default.manager, @myContext.manager 
@@ -94,7 +93,7 @@ class InfrastructureTests < Test::Unit::TestCase
 	
 		assert_false c.manager.directory.has_key? "Silent"
 
-		assert_raise(RuntimeError) { Context.default.discard }
+		assert_raise(ArgumentError) { Context.default.discard }
 		Context.default.deactivate
 		assert_nothing_raised(RuntimeError) { Context.default.discard }
 		assert_not_nil Context.default

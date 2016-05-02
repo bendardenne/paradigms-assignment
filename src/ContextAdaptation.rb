@@ -18,4 +18,8 @@ class ContextAdaptation
 		other.adaptedClass == @adaptedClass and other.selector == @selector
 	end
 
+	def to_s
+		"#{context}:#{adaptedClass}:#{selector}"
+	end
+
 end
