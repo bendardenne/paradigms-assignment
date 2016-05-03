@@ -1,6 +1,6 @@
 require_relative "Phone"
 
-module DiscreetPhone 
+module DiscreetPhone  
 
 	def advertiseQuietly(call)
 		"Vibrate"

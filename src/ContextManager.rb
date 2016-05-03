@@ -5,13 +5,24 @@ class ContextManager
 
 	attr_reader :directory
 
+	class << self
+		attr_accessor :proceeds
+	end
+	
+	@@proceeds = Array.new
+
 	def initialize
 		@directory = {} 
-		@activeAdaptations = Set.new
+		@activeAdaptations = Array.new
 	end
 
 	def self.proceed
-	
+		current = @@proceeds.last
+		nextAdaptation(current)
+	end
+
+	def self.proceeds
+		@@proceeds
 	end
 
 	def discard(context)
@@ -38,5 +49,13 @@ class ContextManager
 		@activeAdaptations.delete(adaptation)
 		a = Context.default.getAdaptation(adaptation.adaptedClass, adaptation.selector)
 		activateAdaptation(a)
+	end
+
+	def nextAdaptation(current)
+		adaptationChain(current.adaptedClass, current.selector)	
+	end
+
+	def adaptationChain(aClass, selector)
+		@activeAdaptations.select {|a| a.adapts? aClass, selector}
 	end
 end

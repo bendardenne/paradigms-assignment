@@ -27,6 +27,8 @@ class AdaptationTest < Test::Unit::TestCase
 		@quietContext.discard
 		@waitSignalContext.deactivate
 		@waitSignalContext.discard
+		Context.default.deactivate
+		Context.default.discard
 	end
 
 

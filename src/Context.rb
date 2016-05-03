@@ -8,7 +8,7 @@ require_relative 'ContextAdaptation'
 class Context
 
 	@@default, @manager = nil
-	
+
 	def initialize(name = nil)
 		@activationCount = 0
 		@adaptations = Set.new
@@ -92,7 +92,7 @@ class Context
 
 
 	def activateAdaptations
-		@adaptations.each{ |a| @manager.activateAdaptation(a) }
+		@adaptations.each{ |a| puts a;  @manager.activateAdaptation(a) }
 	end
 	
 	def deactivateAdaptations
