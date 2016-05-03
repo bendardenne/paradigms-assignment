@@ -10,6 +10,10 @@ class ContextManager
 		@activeAdaptations = Set.new
 	end
 
+	def self.proceed
+	
+	end
+
 	def discard(context)
 		@directory.delete(context.name)
 	end	

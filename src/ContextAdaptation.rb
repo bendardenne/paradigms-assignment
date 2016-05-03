@@ -1,5 +1,9 @@
+require_relative 'MethodAdaptation'
+
 class ContextAdaptation
 
+	using MethodAdaptation
+	
 	attr_accessor :context, :adaptedClass, :selector, :method	
 
 	def initialize(context, adaptedClass, selector, method)
@@ -12,6 +16,7 @@ class ContextAdaptation
 
 	def deploy
 		@adaptedClass.send(:define_method, @selector, @method)
+		@method.adaptation = self
 	end
 
 	def sameTarget?(other)
