@@ -1,10 +1,11 @@
-*  Singleton methods : replace methods depending on context !
 
-
+*	Try Catch  unknownMethod proceed   ????
+*	Use a module that defines   thisContext = method(__method__) 
+	and calling classes should use the modules
 
 REPORT :	
 	*	Manager singleton ?
 	*	key -> name  becomes  name -> key     Enforce unique names 
 	*	--->  with this, what if Context.new('default') ?? 
 	*	Modules in Ruby … lambda cheat if we want to follow smaltalk 
-
+	*	Proceed: could have implemented nicer inside Method
