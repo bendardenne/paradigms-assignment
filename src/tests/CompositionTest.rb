@@ -14,12 +14,12 @@ class AdaptationTest < Test::Unit::TestCase
 		@call = PhoneCall.new
 		
 		@screening = Context.new("screening") 
-		method = ScreeningPhone.instance_method(:advertiseWithScreening)
-		@screening.adaptClass(Phone, :advertise, method)
+		method = ScreeningPhone.instance_method(:advertise_screening)
+		@screening.adapt_class(Phone, :advertise, method)
 		
 		@quiet = Context.new("quiet") 
-		method = DiscreetPhone.instance_method(:advertiseQuietly)
-		@quiet.adaptClass(Phone, :advertise, method)
+		method = DiscreetPhone.instance_method(:advertise_quietly)
+		@quiet.adapt_class(Phone, :advertise, method)
 	end
 
 	def teardown

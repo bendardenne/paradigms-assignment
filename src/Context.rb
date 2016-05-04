@@ -13,7 +13,7 @@ class Context
 
 	def initialize(name = nil)
 		@manager = ContextManager.instance
-		@activationCount = 0
+		@activation_count = 0
 		@adaptations = Set.new
 		if name != nil
 			self.name = name
@@ -47,29 +47,25 @@ class Context
 	end
 
 	## Setter
-	def name=(newName)
+	def name=(new_name)
 		# TODO remove previous from manager 
-		@name = newName
+		@name = new_name
 		@manager.directory[@name] = self
 	end
 
 	def activate
-		@activationCount += 1
-		activateAdaptations
+		@activation_count += 1
+		activate_adaptations
 	end
 
 	def deactivate
-		if @activationCount > 0
-			@activationCount -= 1
+		if @activation_count > 0
+			@activation_count -= 1
 		end
 
 		if not active? 
-			deactivateAdaptations
+			deactivate_adaptations
 		end
-	end
-
-	def active?
-		@activationCount > 0
 	end
 
 	def discard
@@ -80,51 +76,59 @@ class Context
 	end
 
 
-	def activateAdaptations
-		@adaptations.each{ |a| @manager.activateAdaptation(a) }
+	def activate_adaptations
+		@adaptations.each{ |a| @manager.activate_adaptation(a) }
 	end
 	
-	def deactivateAdaptations
-		@adaptations.each{ |a| @manager.deactivateAdaptation(a) }
+	def deactivate_adaptations
+		@adaptations.each{ |a| @manager.deactivate_adaptation(a) }
 	end
 
-	def adaptClass(adaptedClass, selector, implementation)
-		if adapts?(adaptedClass, selector)
-			raise ArgumentError, "#{self}already adapts #{adaptedClass}:#{selector}"
+	def adapt_class(adapted_class, selector, implementation)
+		if adapts?(adapted_class, selector)
+			raise ArgumentError, "#{self}already adapts #{adapted_class}:#{selector}"
 		end
 		
-		adaptation = ContextAdaptation.new(self, adaptedClass, selector, implementation)	
+		adaptation = ContextAdaptation.new(self, adapted_class, selector, implementation)	
 		@adaptations << adaptation							 
 
-		if not Context.default.adapts?(adaptedClass, selector)
-			defaultMethod = adaptedClass.instance_method(selector)
-			Context.default.adaptClass(adaptedClass, selector, defaultMethod)
+		if not Context.default.adapts?(adapted_class, selector)
+			default_method = adapted_class.instance_method(selector)
+			Context.default.adapt_class(adapted_class, selector, default_method)
 		end
 
 		if active? 
-			manager.activateAdaptation(adaptation)
+			manager.activate_adaptation(adaptation)
 		end
 	end
+	
+	def get_adaptation(a_class, selector)
+		@adaptations.each{|a| 
+			if a.adapted_class == a_class and a.selector == selector
+				return a
+			end
+		}
 
-	def adapts?(aClass, selector)
+		# TODO what if not in adaptations
+	end
+
+	##############
+	# PREDICATES #	
+	##############
+
+	def adapts?(a_class, selector)
 		
 		@adaptations.each { |adapted| 
-			if adapted.adaptedClass == aClass and adapted.selector == selector
+			if adapted.adapted_class == a_class and adapted.selector == selector
 				return true
 			end
 		}
 		
 		return false
 	end
-
-	def getAdaptation(aClass, selector)
-		@adaptations.each{|a| 
-			if a.adaptedClass == aClass and a.selector == selector
-				return a
-			end
-		}
-
-		# TODO what if not in adaptations
+	
+	def active?
+		@activation_count > 0
 	end
 
 	def to_s

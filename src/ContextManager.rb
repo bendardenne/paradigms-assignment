@@ -13,16 +13,16 @@ class ContextManager
 
 	def initialize
 		@directory = {} 
-		@activeAdaptations = Array.new
+		@active_adaptations = Array.new
 		@proceeds = Array.new
 	end
 
 	def proceed(*args)
 		current = @proceeds.last
-		nextAdapt = nextAdaptation(current)
+		next_adapt = next_adaptation(current)
 		
-		nextAdapt.deploy
-		r = current.adaptedClass.new.send(current.selector, args)	
+		next_adapt.deploy
+		r = current.adapted_class.new.send(current.selector, args)	
 		current.deploy
 		r
 	end
@@ -31,22 +31,25 @@ class ContextManager
 		@directory.delete(context.name)
 	end	
 
-	def activateAdaptation(adaptation)
-		@activeAdaptations << adaptation
+	def activate_adaptation(adaptation)
+		@active_adaptations << adaptation
 		adaptation.deploy
 	end
 
-	def deactivateAdaptation(adaptation)
-		nextAdapt = nextAdaptation(adaptation)
-		@activeAdaptations.delete(adaptation)
-		nextAdapt.deploy
+	def deactivate_adaptation(adaptation)
+		next_adapt = next_adaptation(adaptation)
+		@active_adaptations.delete(adaptation)
+		next_adapt.deploy
 	end
 
-	def nextAdaptation(current)
-		@activeAdaptations.select {|a| 
-			a.sameTarget? current and a != current}.last
-	end
+	def next_adaptation(current)
+		last = @active_adaptations.select {|a| 
+			a.same_target? current and a != current}.last
 
-	def adaptationChain(aClass, selector)
+		# Get default if not available candidate adaptation
+		if last.nil? 
+			last = Context.default.get_adaptation(current.adapted_class, current.selector)
+		end
+		last
 	end
 end

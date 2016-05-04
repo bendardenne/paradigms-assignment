@@ -5,59 +5,59 @@ require_relative '../Context'
 
 class InfrastructureTests < Test::Unit::TestCase
 	def setup
-		@myContext = Context.new
+		@my_context = Context.new
 	end
 
 	def test_fresh_is_inactive
-		assert_equal @myContext.active? , false
+		assert_equal @my_context.active? , false
 	end
 
 	def test_activate_deactivate 
-		@myContext.activate
-		assert @myContext.active?
+		@my_context.activate
+		assert @my_context.active?
 
-		@myContext.deactivate
-		assert_equal @myContext.active? , false
+		@my_context.deactivate
+		assert_equal @my_context.active? , false
 	end
 
 	def test_redundant_activation 
-		10.times { @myContext.activate }
-		assert @myContext.active?
+		10.times { @my_context.activate }
+		assert @my_context.active?
 
-		9.times { @myContext.deactivate }
-		assert @myContext.active?
+		9.times { @my_context.deactivate }
+		assert @my_context.active?
 
-		@myContext.deactivate 
-		assert_equal @myContext.active? , false
+		@my_context.deactivate 
+		assert_equal @my_context.active? , false
 	end
 
 	def test_redundant_deactivation 
-		5.times { @myContext.activate }
-		assert @myContext.active?
+		5.times { @my_context.activate }
+		assert @my_context.active?
 
-		10.times { @myContext.deactivate }
-		assert_equal @myContext.active? , false
+		10.times { @my_context.deactivate }
+		assert_equal @my_context.active? , false
 
-		@myContext.activate 
-		assert @myContext.active?
+		@my_context.activate 
+		assert @my_context.active?
 		
-		@myContext.deactivate 
-		assert_equal @myContext.active? , false
+		@my_context.deactivate 
+		assert_equal @my_context.active? , false
 	end
 
 	def test_named_contexts
-		assert_nil @myContext.name
-		assert_equal @myContext.to_s, 'Anonymous context'
+		assert_nil @my_context.name
+		assert_equal @my_context.to_s, 'Anonymous context'
 
-		@myNamedContext = Context.new('Low Battery')
-		assert_equal @myNamedContext.name, 'Low Battery' 
-		assert_equal @myNamedContext.to_s, 'Low Battery context'
+		@named_context = Context.new('Low Battery')
+		assert_equal @named_context.name, 'Low Battery' 
+		assert_equal @named_context.to_s, 'Low Battery context'
 
-		@myNamedContext.name = 'High Battery'
-		assert_equal @myNamedContext.name, 'High Battery'
+		@named_context.name = 'High Battery'
+		assert_equal @named_context.name, 'High Battery'
 
-		@otherNamedContext = Context.new("Afternoon")
-		assert_not_same @myNamedContext, @otherNamedContext
+		@other_context = Context.new("Afternoon")
+		assert_not_same @named_context, @other_context
 	end
 
 	def test_default
@@ -65,8 +65,8 @@ class InfrastructureTests < Test::Unit::TestCase
 		assert_equal Context.default.name, 'default'
 		assert Context.default.active?
 	
-		Context.default = @myContext
-		assert_same Context.default, @myContext 
+		Context.default = @my_context
+		assert_same Context.default, @my_context 
 		assert_nil Context.default.name 
 
 		Context.default = nil
@@ -74,10 +74,10 @@ class InfrastructureTests < Test::Unit::TestCase
 	end
 	
 	def test_manager
-		assert_not_nil @myContext.manager 
+		assert_not_nil @my_context.manager 
 		assert_not_nil Context.default.manager
 	
-		assert_same Context.default.manager, @myContext.manager 
+		assert_same Context.default.manager, @my_context.manager 
 		
 		Context.default = nil
 		c = Context.new

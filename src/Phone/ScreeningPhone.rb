@@ -2,7 +2,7 @@ require_relative 'Phone'
 
 module ScreeningPhone
 
-	def advertiseWithScreening(call)
+	def advertise_screening(call)
 		"#{Context.proceed(call)} with screening"
 	end
 

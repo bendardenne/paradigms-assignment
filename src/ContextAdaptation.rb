@@ -2,11 +2,11 @@ require_relative 'MethodAdaptation'
 
 class ContextAdaptation
 
-	attr_accessor :context, :adaptedClass, :selector, :method	
+	attr_accessor :context, :adapted_class, :selector, :method	
 
-	def initialize(context, adaptedClass, selector, method)
+	def initialize(context, adapted_class, selector, method)
 		@context = context
-		@adaptedClass = adaptedClass
+		@adapted_class = adapted_class
 		@selector = selector
 		@method = method
 	end 
@@ -15,7 +15,7 @@ class ContextAdaptation
 	def deploy
 		m = @method
 		a = self
-		@adaptedClass.send(:define_method, @selector, lambda{ |params = m.parameters, adaptation = a| 
+		@adapted_class.send(:define_method, @selector, lambda{|params = m.parameters, adaptation = a| 
 			ContextManager.instance.proceeds = 
 			ContextManager.instance.proceeds.push(adaptation)
 			
@@ -30,16 +30,16 @@ class ContextAdaptation
 		})
 	end
 
-	def adapts?(aClass, selector)
-		self.adaptedClass == aClass and self.selector == selector
+	def adapts?(a_class, selector)
+		self.adapted_class == a_class and self.selector == selector
 	end
 
-	def sameTarget?(other)
-		other.adaptedClass == @adaptedClass and other.selector == @selector
+	def same_target?(other)
+		other.adapted_class == @adapted_class and other.selector == @selector
 	end
 
 	def to_s
-		"#{context}##{adaptedClass}:#{selector}"
+		"#{@context}##{@adapted_class}:#{@selector}"
 	end
 
 end
