@@ -16,17 +16,33 @@ class AdaptationTest < Test::Unit::TestCase
 		@screening = Context.new("screening") 
 		method = ScreeningPhone.instance_method(:advertiseWithScreening)
 		@screening.adaptClass(Phone, :advertise, method)
+
+		@quiet = Context.new("quiet") 
+		method = DiscreetPhone.instance_method(:advertiseQuietly)
+		@quiet.adaptClass(Phone, :advertise, method)
 	end
 
 	def teardown
+		@screening.deactivate
 		@screening.discard
+		@quiet.deactivate
+		@quiet.discard
 	end
 
 	def test_composition
 		assert_nothing_raised { @screening.activate	}
 		
-		#assert_equal  @phone.receive(@call), "Ringtone with screening"
-		@phone.advertise(@call)
+		assert_equal  @phone.receive(@call), "Ringtone with screening"
+	end
+
+	def test_chainedComposition
+		assert_nothing_raised { @quiet.activate	}
+		assert_nothing_raised { @screening.activate	}
+		
+		assert_equal  @phone.receive(@call), "Vibrate with screening"
+
+		assert_nothing_raised { @quiet.deactivate }
+		assert_equal  @phone.receive(@call), "Vibrate with screening"
 	end
 
 end

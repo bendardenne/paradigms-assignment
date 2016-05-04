@@ -92,7 +92,7 @@ class Context
 
 
 	def activateAdaptations
-		@adaptations.each{ |a| puts a;  @manager.activateAdaptation(a) }
+		@adaptations.each{ |a| @manager.activateAdaptation(a) }
 	end
 	
 	def deactivateAdaptations
