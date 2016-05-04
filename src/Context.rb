@@ -7,9 +7,12 @@ require_relative 'ContextAdaptation'
 
 class Context
 
-	@@default, @manager = nil
+	attr_reader :manager
+
+	@@default = nil
 
 	def initialize(name = nil)
+		@manager = ContextManager.instance
 		@activationCount = 0
 		@adaptations = Set.new
 		if name != nil
@@ -33,25 +36,11 @@ class Context
 	def self.default=(newDefault)
 		@@default = newDefault
 	end
+
+	def self.proceed(*args) 
+		ContextManager.instance.proceed(args)
+	end
 	
-	## Getter	
-	def manager 
-		if @manager == nil 
-			if self == Context.default 
-				@manager = ContextManager.new
-			else
-				@manager = Context.default.manager 
-			end
-		end	
-
-		return @manager
-	end
-
-	## Setter
-	def manager=(newManager)
-		@manager = newManager
-	end
-
 	## Getter
 	def name 
 		@name
@@ -61,7 +50,7 @@ class Context
 	def name=(newName)
 		# TODO remove previous from manager 
 		@name = newName
-		self.manager.directory[@name] = self
+		@manager.directory[@name] = self
 	end
 
 	def activate
@@ -92,7 +81,7 @@ class Context
 
 
 	def activateAdaptations
-		@adaptations.each{ |a| puts a;  @manager.activateAdaptation(a) }
+		@adaptations.each{ |a| @manager.activateAdaptation(a) }
 	end
 	
 	def deactivateAdaptations

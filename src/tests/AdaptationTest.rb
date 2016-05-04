@@ -18,7 +18,7 @@ class AdaptationTest < Test::Unit::TestCase
 		@quietContext.adaptClass(Phone, :advertise, quietMethod)
 		
 		@waitSignalContext = Context.new("Off-Hook")
-		waitMethod = MulticallPhone.instance_method(:advertiseWaitCall)
+		waitMethod = lambda{|*args| "wait" }
 		@waitSignalContext.adaptClass(Phone, :advertise, waitMethod)
 	end
 

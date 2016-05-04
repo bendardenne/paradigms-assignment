@@ -1,28 +1,30 @@
 
 require 'set'
+require 'singleton'
+
 
 class ContextManager 
 
-	attr_reader :directory
+	include Singleton
 
-	class << self
-		attr_accessor :proceeds
-	end
+	attr_reader :directory
+	attr_accessor :proceeds
 	
-	@@proceeds = Array.new
 
 	def initialize
 		@directory = {} 
 		@activeAdaptations = Array.new
+		@proceeds = Array.new
 	end
 
-	def self.proceed
-		current = @@proceeds.last
-		nextAdaptation(current)
-	end
-
-	def self.proceeds
-		@@proceeds
+	def proceed(*args)
+		current = @proceeds.last
+		nextAdapt = nextAdaptation(current)
+		
+		nextAdapt.deploy
+		r = current.adaptedClass.new.send(current.selector, args)	
+		current.deploy
+		r
 	end
 
 	def discard(context)
@@ -30,32 +32,21 @@ class ContextManager
 	end	
 
 	def activateAdaptation(adaptation)
-		
-		@activeAdaptations.each {|a| 
-			if a.sameTarget? adaptation and a.context != Context.default
-				raise ArgumentError, "Cannot activate #{adaptation}: 
-					conflicts with activated adaptation #{a}"
-			end
-		}
-
 		@activeAdaptations << adaptation
 		adaptation.deploy
 	end
 
 	def deactivateAdaptation(adaptation)
-		# Acquire default adaptation and activate it
-		# TODO Fix when several Contexts
-		
+		nextAdapt = nextAdaptation(adaptation)
 		@activeAdaptations.delete(adaptation)
-		a = Context.default.getAdaptation(adaptation.adaptedClass, adaptation.selector)
-		activateAdaptation(a)
+		nextAdapt.deploy
 	end
 
 	def nextAdaptation(current)
-		adaptationChain(current.adaptedClass, current.selector)	
+		@activeAdaptations.select {|a| 
+			a.sameTarget? current and a != current}.last
 	end
 
 	def adaptationChain(aClass, selector)
-		@activeAdaptations.select {|a| a.adapts? aClass, selector}
 	end
 end

@@ -2,7 +2,7 @@ class Phone
 
 	def advertise(phoneCall)
 		"Ringtone"
-	end
+		end
 
 	def receive(phoneCall)
 		advertise(phoneCall)

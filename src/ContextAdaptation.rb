@@ -13,10 +13,20 @@ class ContextAdaptation
 
 
 	def deploy
-		@adaptedClass.send(:define_method, @selector, lambda{ |*args| 
-			ContextManager.proceeds = ContextManager.proceeds.push(self)
-			@method.call(args)
-			ContextManager.proceeds.pop
+		m = @method
+		a = self
+		@adaptedClass.send(:define_method, @selector, lambda{ |params = m.parameters, adaptation = a| 
+			ContextManager.instance.proceeds = 
+			ContextManager.instance.proceeds.push(adaptation)
+			
+			if m.is_a? Method or m.is_a? Proc
+				r = m.call(params)
+			else 
+				r = m.bind(self).call(params)
+			end
+
+			ContextManager.instance.proceeds.pop
+			r
 		})
 	end
 
