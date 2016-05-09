@@ -7,7 +7,7 @@ require_relative 'ContextAdaptation'
 
 class Context
 
-	attr_reader :manager, :activation_age
+	attr_reader :manager
 
 	@@default = nil
 	@@age = 0
@@ -53,6 +53,10 @@ class Context
 		# TODO remove previous from manager 
 		@name = new_name
 		@manager.directory[@name] = self
+	end
+
+	def activation_age
+		@@age - @activation_age
 	end
 
 	def activate

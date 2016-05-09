@@ -1,5 +1,3 @@
-require_relative "Phone"
-
 module DiscreetPhone  
 
 	def advertise_quietly(call)

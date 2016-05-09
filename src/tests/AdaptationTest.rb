@@ -10,7 +10,7 @@ require_relative '../Phone/PhoneCall.rb'
 class AdaptationTest < Test::Unit::TestCase
 	def setup
 		
-		@phone = Phone.new
+		@phone = Phone.new("Alice")
 		@call = PhoneCall.new
 		
 		@quiet = Context.new("Quiet")

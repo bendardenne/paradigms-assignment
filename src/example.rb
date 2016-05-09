@@ -91,13 +91,12 @@ phone = Phone.new("Bob")
 
 #### The next day
 
-	# Policy may be changed
-	# Use oldest activated policy (instead of newest, by default)
-	ContextManager.instance.policy = lambda {|x,y| 
+	# Context oredring policy may be changed
+	# Use oldest activated context (instead of newest by default)
+	Context.default.manager.policy = lambda {|x,y| 
 		y.activation_age <=> x.activation_age }
 	
-
 	Context.default.deactivate
 	quiet.activate 
 	Context.default.activate	# Default activated after quiet
-	puts phone.receive(call)	# Quiet is the current adaptation
+	puts phone.advertise(call)	# Quiet is the current adaptation

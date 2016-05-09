@@ -15,15 +15,15 @@ class ContextManager
 		@directory = {} 
 		@active_adaptations = Array.new
 		@proceeds = Array.new
-		@policy = lambda {|c1, c2| c2.activation_age <=> c1.activation_age}
+		@policy = lambda {|c1, c2| c1.activation_age <=> c2.activation_age}
 	end
 
-	def proceed(*args)
+	def proceed(obj, *args)
 		current = @proceeds.last
-		next_adapt = next_adaptation(current)
+		next_adapt = adaptation_after(current)
 		
 		next_adapt.deploy
-		r = current.adapted_class.new.send(current.selector, args)	
+		r = obj.send(current.selector, args)	
 		current.deploy
 		r
 	end
@@ -34,22 +34,26 @@ class ContextManager
 
 	def activate_adaptation(adaptation)
 		@active_adaptations << adaptation
-		
 		adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
 		adapt.deploy
 	end
 
 	def deactivate_adaptation(adaptation)
-		next_adapt = next_adaptation(adaptation)
 		@active_adaptations.delete(adaptation)
+		next_adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
 		next_adapt.deploy
 	end
 
-	def next_adaptation(current)
-		first = @active_adaptations.select {|a| 
-			a.same_target? current and a != current}.sort(&@policy).first
+	def adaptation_chain(aClass, selector)
+		@active_adaptations.select {|a| 
+			a.adapts? aClass, selector}.sort(&@policy)
+	end
 
-		# Get default if not available candidate adaptation
+	def adaptation_after(current)
+		first = adaptation_chain(current.adapted_class, current.selector)
+			.drop_while{|x| x != current}[1]
+
+		# Get default if no candidate adaptation available
 		if first.nil? 
 			first = Context.default.get_adaptation(current.adapted_class, current.selector)
 		end
@@ -57,7 +61,11 @@ class ContextManager
 	end
 
 	def best_adaptation(aClass, selector)
-		@active_adaptations.select {|a| 
-			a.adapts? aClass, selector}.sort(&@policy).first
+		first = adaptation_chain(aClass, selector).first
+		
+		if first.nil? 
+			first = Context.default.get_adaptation(aClass, selector)
+		end
+		first
 	end
 end

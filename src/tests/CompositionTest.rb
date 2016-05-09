@@ -10,9 +10,9 @@ require_relative '../Phone/PhoneCall.rb'
 
 class AdaptationTest < Test::Unit::TestCase
 	def setup
-		@phone = Phone.new
+		@phone = Phone.new("Alice")
 		@call = PhoneCall.new
-		
+
 		@screening = Context.new("screening") 
 		method = ScreeningPhone.instance_method(:advertise_screening)
 		@screening.adapt_class(Phone, :advertise, method)
@@ -51,8 +51,9 @@ class AdaptationTest < Test::Unit::TestCase
 	
 	
 	def test_policy
+		# Sort by oldest first
 		@quiet.manager.policy = 
-			lambda{|ca1, ca2| ca1.activation_age <=> ca2.activation_age }  
+			lambda{|ca1, ca2| ca2.activation_age <=> ca1.activation_age }  
 
 		assert_nothing_raised { @quiet.activate	}
 
@@ -63,8 +64,9 @@ class AdaptationTest < Test::Unit::TestCase
 	end
 	
 	def test_policy_with_proceed
+		# Oldest first
 		@quiet.manager.policy = 
-			lambda{|ca1, ca2| ca1.activation_age <=> ca2.activation_age }  
+			lambda{|ca1, ca2| ca2.activation_age <=> ca1.activation_age }  
 
 		assert_nothing_raised { @screening.activate	}
 		assert_nothing_raised { @quiet.activate	}

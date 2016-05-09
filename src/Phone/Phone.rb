@@ -1,8 +1,16 @@
+require_relative '../ContextModule'
+
 class Phone
 
+	include ContextModule
+
+	def initialize(name)
+		@owner = name 
+	end
+
 	def advertise(phoneCall)
-		"Ringtone"
-		end
+		"Ringtone" # for #{@owner}"
+	end
 
 	def receive(phoneCall)
 		advertise(phoneCall)
