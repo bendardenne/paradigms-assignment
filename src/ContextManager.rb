@@ -8,13 +8,14 @@ class ContextManager
 	include Singleton
 
 	attr_reader :directory
-	attr_accessor :proceeds
+	attr_accessor :proceeds, :policy
 	
 
 	def initialize
 		@directory = {} 
 		@active_adaptations = Array.new
 		@proceeds = Array.new
+		@policy = lambda {|c1, c2| c2.activation_age <=> c1.activation_age}
 	end
 
 	def proceed(*args)
@@ -33,7 +34,10 @@ class ContextManager
 
 	def activate_adaptation(adaptation)
 		@active_adaptations << adaptation
-		adaptation.deploy
+		
+		adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
+		puts "deploying #{adapt}"
+		adapt.deploy
 	end
 
 	def deactivate_adaptation(adaptation)
@@ -43,13 +47,20 @@ class ContextManager
 	end
 
 	def next_adaptation(current)
-		last = @active_adaptations.select {|a| 
-			a.same_target? current and a != current}.last
+		first = @active_adaptations.select {|a| 
+			a.same_target? current and a != current}.sort(&@policy).first
 
 		# Get default if not available candidate adaptation
-		if last.nil? 
-			last = Context.default.get_adaptation(current.adapted_class, current.selector)
+		if first.nil? 
+			first = Context.default.get_adaptation(current.adapted_class, current.selector)
 		end
-		last
+		first
+	end
+
+	def best_adaptation(aClass, selector)
+		puts "ADAPTATIONS" 
+		puts @active_adaptations.sort(&@policy)
+		@active_adaptations.select {|a| 
+			a.adapts? aClass, selector}.sort(&@policy).first
 	end
 end

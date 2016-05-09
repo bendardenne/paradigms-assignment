@@ -7,14 +7,16 @@ require_relative 'ContextAdaptation'
 
 class Context
 
-	attr_reader :manager
+	attr_reader :manager, :activation_age
 
 	@@default = nil
+	@@age = 0
 
 	def initialize(name = nil)
 		@manager = ContextManager.instance
 		@activation_count = 0
 		@adaptations = Set.new
+		@activation_age = 0
 		if name != nil
 			self.name = name
 		end
@@ -55,6 +57,7 @@ class Context
 
 	def activate
 		@activation_count += 1
+		@activation_age = (@@age += 1);
 		activate_adaptations
 	end
 

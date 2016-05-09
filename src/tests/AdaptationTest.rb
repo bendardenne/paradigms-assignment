@@ -53,7 +53,7 @@ class AdaptationTest < Test::Unit::TestCase
 #		assert_nothing_raised { @wait.deactivate }
 #	end
 
-	def test_invalidAdaptation
+	def test_invalid_adaptation
 		context = Context.new
 
 		assert_raise(NameError) { 
@@ -66,4 +66,5 @@ class AdaptationTest < Test::Unit::TestCase
 		}
 		
 	end
+
 end

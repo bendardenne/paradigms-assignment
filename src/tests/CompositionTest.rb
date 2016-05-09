@@ -36,7 +36,7 @@ class AdaptationTest < Test::Unit::TestCase
 		assert_equal  @phone.receive(@call), "Ringtone with screening"
 	end
 
-	def test_chainedComposition
+	def test_chained_composition
 		assert_nothing_raised { @quiet.activate	}
 		assert_nothing_raised { @screening.activate	}
 		
@@ -47,5 +47,30 @@ class AdaptationTest < Test::Unit::TestCase
 		
 		assert_nothing_raised { @quiet.activate	}
 		assert_equal  @phone.receive(@call), "Vibrate"
+	end
+	
+	
+	def test_policy
+		@quiet.manager.policy = 
+			lambda{|ca1, ca2| ca1.activation_age <=> ca2.activation_age }  
+
+		assert_nothing_raised { @quiet.activate	}
+
+		Context.default.deactivate
+		
+		assert_nothing_raised { @screening.activate	}
+		assert_equal  @phone.receive(@call), "Vibrate"
+	end
+	
+	def test_policy_with_proceed
+		@quiet.manager.policy = 
+			lambda{|ca1, ca2| ca1.activation_age <=> ca2.activation_age }  
+
+		assert_nothing_raised { @screening.activate	}
+		assert_nothing_raised { @quiet.activate	}
+		
+		Context.default.deactivate	
+
+		assert_equal  @phone.receive(@call), "Vibrate with screening"
 	end
 end

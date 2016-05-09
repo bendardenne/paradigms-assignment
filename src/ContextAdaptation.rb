@@ -11,6 +11,9 @@ class ContextAdaptation
 		@method = method
 	end 
 
+	def activation_age 
+		@context.activation_age
+	end
 
 	def deploy
 		m = @method
