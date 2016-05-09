@@ -1,0 +1,13 @@
+
+
+ContextManager.policy = {|C1 C2|   } 
+
+refine Context
+	
+	@@age = 0;
+	
+	def age 
+		
+	end
+
+

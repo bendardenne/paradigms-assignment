@@ -89,7 +89,7 @@ class Context
 
 	def adapt_class(adapted_class, selector, implementation)
 		if adapts?(adapted_class, selector)
-			raise ArgumentError, "#{self}already adapts #{adapted_class}:#{selector}"
+			raise ArgumentError, "#{self} already adapts #{adapted_class}:#{selector}"
 		end
 		
 		adaptation = ContextAdaptation.new(self, adapted_class, selector, implementation)	

@@ -36,7 +36,6 @@ class ContextManager
 		@active_adaptations << adaptation
 		
 		adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
-		puts "deploying #{adapt}"
 		adapt.deploy
 	end
 
@@ -58,8 +57,6 @@ class ContextManager
 	end
 
 	def best_adaptation(aClass, selector)
-		puts "ADAPTATIONS" 
-		puts @active_adaptations.sort(&@policy)
 		@active_adaptations.select {|a| 
 			a.adapts? aClass, selector}.sort(&@policy).first
 	end

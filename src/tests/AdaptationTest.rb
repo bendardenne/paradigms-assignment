@@ -67,4 +67,17 @@ class AdaptationTest < Test::Unit::TestCase
 		
 	end
 
+	def test_multiple_methods
+		context = Context.new
+		context.adapt_class(Phone, :call, lambda{|x| "Calling #{x} quietly" })
+
+		#assert_nothing_raised {context.activate}
+		assert_nothing_raised {@quiet.activate}
+		assert_equal @phone.call("Alice"), "Calling Alice"
+		assert_equal @phone.receive(@call), "Vibrate"
+
+		assert_nothing_raised {context.activate}
+		assert_equal @phone.call("Alice"), "Calling Alice quietly"
+		assert_equal @phone.receive(@call), "Vibrate"
+	end
 end

@@ -8,4 +8,8 @@ class Phone
 		advertise(phoneCall)
 	end	
 
+	def call(someone)
+		"Calling #{someone}"
+	end
+
 end
