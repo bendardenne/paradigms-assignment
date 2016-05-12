@@ -96,14 +96,14 @@ class InfrastructureTests < Test::Unit::TestCase
 		assert_not_nil c.manager	
 	end
 
-	def test_directory
+	def test_manager_set
 		c = Context.new("Silent")
-		assert c.manager.directory.has_key? "Silent"
-		assert c.manager.directory.has_key? "default"
+		assert c.manager.contexts.include? c
+		assert c.manager.contexts.include? Context.default
 
 		c.discard
 	
-		assert_false c.manager.directory.has_key? "Silent"
+		assert_false c.manager.contexts.include? "Silent"
 
 		assert_raise(ArgumentError) { Context.default.discard }
 		Context.default.deactivate

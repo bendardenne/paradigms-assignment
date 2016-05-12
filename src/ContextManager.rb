@@ -5,19 +5,20 @@ require 'singleton'
 
 class ContextManager 
 
+	# The manager is a singleton
 	include Singleton
 
 	# To store active contexts
-	attr_reader :directory
+	attr_reader :contexts
 	
 	# proceed: array to store the adaptations in order, 
 	# so we know which adaptation should be called when we have "proceed"
 	# policy: to define the policy in which the manager will decide which adaptation should be called 
 	attr_accessor :proceeds, :policy
 	
-	# Initialize the manager, with "age" as default policy 
+	# Initialize the manager, with "youngest first" as default policy 
 	def initialize
-		@directory = {} 
+		@contexts = Set.new
 		@active_adaptations = Array.new
 		@proceeds = Array.new
 		@policy = lambda {|c1, c2| c1.activation_age <=> c2.activation_age}
@@ -37,7 +38,7 @@ class ContextManager
 		# Call the deployed adaptation on the caller object
 		r = obj.send(current.selector.method, args)
 		
-		# Re-deploy the current again	
+		# Re-deploy the current adaptation (restore the initial state)	
 		current.deploy
 
 		# Return the result of the proceed
@@ -46,8 +47,12 @@ class ContextManager
 
 	# To discard a context we simply delete it from the directory
 	def discard(context)
-		@directory.delete(context.name)
+		@contexts.delete(context)
 	end	
+
+	def register(context)
+		@contexts << context
+	end
 
 	def activate_adaptation(adaptation)
 		# Add the new adaptation to the active_adaptations array 
@@ -73,7 +78,7 @@ class ContextManager
 	end
 
 	# Get a sorted chain (according to the policy) 
-	# of all active adaptations for the 'selector' method in 'a_class'
+	# of all active adaptations fot a given selector
 	def adaptation_chain(selector)
 		@active_adaptations.select {|a| a.adapts? selector}.sort(&@policy)
 	end

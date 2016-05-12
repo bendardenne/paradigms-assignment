@@ -12,7 +12,8 @@ ClassSelector = Struct.new(:a_class, :method)
 class Context
 
 	# multiple_activation: If it is allowed to activate this context multible times or not  
-	attr_reader :manager, :multiple_activation 
+	attr_reader :manager, :multiple_activation
+	attr_accessor :name
 
 	# Class variable to store the default context
 	@@default = nil
@@ -21,22 +22,20 @@ class Context
 
 	
 	def initialize(name = nil, multiple_activation: true)
-		@manager = ContextManager.instance
 		@activation_count = 0
 		@adaptations = Set.new
 		@activation_age = 0
 		@multiple_activation = multiple_activation
-		if name != nil
-			self.name = name
-		end
+		@name = name
+		@manager = ContextManager.instance
+		@manager.register(self)
 	end
 
 
 	# Get the default context, if it is not created yet, a default context will be created and activated
 	def self.default 
 		if @@default == nil
-			@@default = Context.new
-			@@default.name = 'default'
+			@@default = Context.new("default")
 			@@default.activate
 		end
 
@@ -46,18 +45,6 @@ class Context
 	# Set the default manually
 	def self.default=(newDefault)
 		@@default = newDefault
-	end
-
-	## Getter
-	def name 
-		@name
-	end
-
-	## Setter
-	def name=(new_name)
-		# TODO remove previous from manager 
-		@name = new_name
-		@manager.directory[@name] = self
 	end
 
 	# Calculating activation age of the context
@@ -140,7 +127,7 @@ class Context
 		end
 	end
 	
-	# Return the adaptation for a selector method in a_class
+	# Return the adaptation for a selector
 	def get_adaptation(selector)
 		@adaptations.each{|a| 
 			if a.selector == selector
@@ -155,7 +142,7 @@ class Context
 	# PREDICATES #	
 	##############
 
-	# Return whether this contexts adapts the selector method in a_class
+	# Return whether this contexts adapts this selector
 	def adapts?(selector)
 		@adaptations.each { |adapted| 
 			if adapted.selector == selector
