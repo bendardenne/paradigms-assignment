@@ -1,5 +1,3 @@
-require_relative 'MethodAdaptation'
-
 class ContextAdaptation
 
 	attr_accessor :context, :adapted_class, :selector, :method	
@@ -18,16 +16,20 @@ class ContextAdaptation
 	def deploy
 		m = @method
 		a = self
-		@adapted_class.send(:define_method, @selector, lambda{|params = m.parameters, adaptation = a| 
+		@adapted_class.sen(:define_method, @selector, lambda{|params = m.parameters, adaptation = a| 
 			ContextManager.instance.proceeds = 
 			ContextManager.instance.proceeds.push(adaptation)
 			
-			if m.is_a? Method or m.is_a? Proc
-				r = m.call(*params)
-			else 
-				r = m.bind(self).call(*params)
-			end
+			# Get an UnboundMethod to bind to the calling object
+			if m.is_a? Method
+				m.unbind
+			elsif m.is_a? Proc
+				## Dirty hack, avert your eyes
+				Object.send(:define_method, :___fake_method_COP, &m)
+				m = Object.instance_method(:___fake_method_COP)
+			end	
 
+			r = m.bind(self).call(*params)
 			ContextManager.instance.proceeds.pop
 			r
 		})

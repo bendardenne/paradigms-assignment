@@ -111,6 +111,7 @@ phone = Phone.new("Bob")
 	module MyOwnContext
 		def activate(multiple_adaptation)
 			@activation_count = 1 
+			activate_adaptations
 		end
 	end
 
@@ -120,3 +121,4 @@ phone = Phone.new("Bob")
 
 	context.deactivate
 	puts context.active?	
+
