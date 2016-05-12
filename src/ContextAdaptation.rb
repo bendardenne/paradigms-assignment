@@ -16,7 +16,7 @@ class ContextAdaptation
 	def deploy
 		m = @method
 		a = self
-		@adapted_class.sen(:define_method, @selector, lambda{|params = m.parameters, adaptation = a| 
+		@adapted_class.send(:define_method, @selector, lambda{|params = m.parameters, adaptation = a| 
 			ContextManager.instance.proceeds = 
 			ContextManager.instance.proceeds.push(adaptation)
 			
