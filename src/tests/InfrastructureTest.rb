@@ -44,6 +44,18 @@ class InfrastructureTests < Test::Unit::TestCase
 		@my_context.deactivate 
 		assert_equal @my_context.active? , false
 	end
+	
+	def test_no_stacked_activation
+		10.times { @my_context.activate(multiple_activation = false) }
+		assert @my_context.active?
+		
+		@my_context = Context.new("MyContext", multiple_activation: false)
+		10.times { @my_context.activate }
+		assert @my_context.active?
+
+		@my_context.deactivate
+		assert_false @my_context.active?
+	end
 
 	def test_named_contexts
 		assert_nil @my_context.name

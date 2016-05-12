@@ -23,9 +23,9 @@ class ContextAdaptation
 			ContextManager.instance.proceeds.push(adaptation)
 			
 			if m.is_a? Method or m.is_a? Proc
-				r = m.call(params)
+				r = m.call(*params)
 			else 
-				r = m.bind(self).call(params)
+				r = m.bind(self).call(*params)
 			end
 
 			ContextManager.instance.proceeds.pop

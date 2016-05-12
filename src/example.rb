@@ -93,6 +93,7 @@ phone = Phone.new("Bob")
 
 	# Context oredring policy may be changed
 	# Use oldest activated context (instead of newest by default)
+	origPolicy = Context.default.manager.policy
 	Context.default.manager.policy = lambda {|x,y| 
 		y.activation_age <=> x.activation_age }
 	
@@ -100,3 +101,22 @@ phone = Phone.new("Bob")
 	quiet.activate 
 	Context.default.activate	# Default activated after quiet
 	puts phone.advertise(call)	# Quiet is the current adaptation
+	
+
+#### Context adapting itself 
+
+	Context.default.manager.policy = origPolicy 
+	context = Context.new()
+
+	module MyOwnContext
+		def activate(multiple_adaptation)
+			@activation_count = 1 
+		end
+	end
+
+	context.adapt_class(Context, :activate, MyOwnContext.instance_method(:activate))
+	5.times { context.activate }
+	puts context.active?	
+
+	context.deactivate
+	puts context.active?	
