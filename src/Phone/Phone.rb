@@ -1,14 +1,23 @@
-require_relative '../MethodAdaptation'
+require_relative '../ContextModule'
+
 class Phone
-	
-	prepend MethodAdaptation
-	
+
+#	include ContextModule
+
+	def initialize(name)
+		@owner = name 
+	end
+
 	def advertise(phoneCall)
-		"Ringtone"
+		"Ringtone" # for #{@owner}"
 	end
 
 	def receive(phoneCall)
 		advertise(phoneCall)
 	end	
+
+	def call(someone)
+		"Calling #{someone}"
+	end
 
 end

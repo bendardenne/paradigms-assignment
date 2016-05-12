@@ -1,9 +1,6 @@
-require_relative 'Phone'
-
 module ScreeningPhone
 
-	def advertiseWithScreening(call)
-		"#{proceed(call)} with screening"
+	def advertise_screening(call)
+		"#{proceed(call)} with screening" # for #{@owner}"
 	end
-
 end

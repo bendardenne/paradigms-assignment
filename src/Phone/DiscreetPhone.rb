@@ -1,12 +1,10 @@
-require_relative "Phone"
-
 module DiscreetPhone  
 
-	def advertiseQuietly(call)
+	def advertise_quietly(call)
 		"Vibrate"
 	end
 	
-	def advertiseDiscreteBeep(call)
+	def advertise_discrete_beep(call)
 		"Discrete beep"
 	end	
 

@@ -10,23 +10,23 @@ require_relative '../Phone/PhoneCall.rb'
 class AdaptationTest < Test::Unit::TestCase
 	def setup
 		
-		@phone = Phone.new
+		@phone = Phone.new("Alice")
 		@call = PhoneCall.new
 		
-		@quietContext = Context.new("Quiet")
-		quietMethod = DiscreetPhone.instance_method(:advertiseQuietly)
-		@quietContext.adaptClass(Phone, :advertise, quietMethod)
+		@quiet = Context.new("Quiet")
+		quiet_method = DiscreetPhone.instance_method(:advertise_quietly)
+		@quiet.adapt_class(Phone, :advertise, quiet_method)
 		
-		@waitSignalContext = Context.new("Off-Hook")
-		waitMethod = MulticallPhone.instance_method(:advertiseWaitCall)
-		@waitSignalContext.adaptClass(Phone, :advertise, waitMethod)
+		@wait = Context.new("Off-Hook")
+		wait_method = lambda{|*args| "wait" }
+		@wait.adapt_class(Phone, :advertise, wait_method)
 	end
 
 	def teardown
-		@quietContext.deactivate
-		@quietContext.discard
-		@waitSignalContext.deactivate
-		@waitSignalContext.discard
+		@quiet.deactivate
+		@quiet.discard
+		@wait.deactivate
+		@wait.discard
 		Context.default.deactivate
 		Context.default.discard
 	end
@@ -37,32 +37,47 @@ class AdaptationTest < Test::Unit::TestCase
 		assert_equal @phone.receive(@call), "Ringtone"
 	
 		# Activate a context and check implementation	
-		assert_nothing_raised {@quietContext.activate}
+		assert_nothing_raised {@quiet.activate}
 		assert_equal @phone.receive(@call), "Vibrate"
 	
 		# Should go back to default	
-		assert_nothing_raised {@quietContext.deactivate}
+		assert_nothing_raised {@quiet.deactivate}
 		assert_equal @phone.receive(@call), "Ringtone"
 	end
+	
+	# Multiple Contexts are now allowed
+#	def test_conflictingAdaptations
+#		assert_nothing_raised { @wait.activate }
+#		assert_raise(ArgumentError) { @quiet.activate }	
+#
+#		assert_nothing_raised { @wait.deactivate }
+#	end
 
-	def test_conflictingAdaptations
-		assert_nothing_raised { @waitSignalContext.activate }
-		assert_raise(ArgumentError) { @quietContext.activate }	
-
-		assert_nothing_raised { @waitSignalContext.deactivate }
-	end
-
-	def test_invalidAdaptation
+	def test_invalid_adaptation
 		context = Context.new
 
 		assert_raise(NameError) { 
-			context.adaptClass(Phone, :areYouHigh?, lambda{ |x| return "high as kite" })
+			context.adapt_class(Phone, :areYouHigh?, lambda{ |x| return "high as kite" })
 		}
 
-		context.adaptClass(Phone, :advertise, lambda{ |x| return "Quiet" })
+		context.adapt_class(Phone, :advertise, lambda{ |x| return "Quiet" })
 		assert_raise(ArgumentError) { 
-			context.adaptClass(Phone, :advertise, lambda{ |x| return "Off-Hook" })
+			context.adapt_class(Phone, :advertise, lambda{ |x| return "Off-Hook" })
 		}
 		
+	end
+
+	def test_multiple_methods
+		context = Context.new
+		context.adapt_class(Phone, :call, lambda{|x| "Calling #{x} quietly" })
+
+		#assert_nothing_raised {context.activate}
+		assert_nothing_raised {@quiet.activate}
+		assert_equal @phone.call("Alice"), "Calling Alice"
+		assert_equal @phone.receive(@call), "Vibrate"
+
+		assert_nothing_raised {context.activate}
+		assert_equal @phone.call("Alice"), "Calling Alice quietly"
+		assert_equal @phone.receive(@call), "Vibrate"
 	end
 end
