@@ -7,6 +7,8 @@ require 'set'
 require_relative 'ContextManager'
 require_relative 'ContextAdaptation'
 
+ClassSelector = Struct.new(:a_class, :method)
+
 class Context
 
 	# multiple_activation: If it is allowed to activate this context multible times or not  
@@ -114,21 +116,22 @@ class Context
 	end
 
 	# Implement an adaptation for the "selector" method in the "adapted_class" with the new "implementation"
-	def adapt_class(adapted_class, selector, implementation)
+	def adapt_class(adapted_class, method_selector, implementation)
+		selector = ClassSelector.new(adapted_class, method_selector)
 		# Make sure this context didn't adapt the same method before
-		if adapts?(adapted_class, selector)
-			raise ArgumentError, "#{self} already adapts #{adapted_class}:#{selector}"
+		if adapts?(selector)
+			raise ArgumentError, "#{self} already adapts #{selector}"
 		end
 		
 		# Create the new adaptation and add it to the adaptations set
-		adaptation = ContextAdaptation.new(self, adapted_class, selector, implementation)	
+		adaptation = ContextAdaptation.new(self, selector, implementation)	
 		@adaptations << adaptation							 
 
 		# if the default has no implementation for the method, 
 		# we store the current implementation in the default
-		if not Context.default.adapts?(adapted_class, selector)
-			default_method = adapted_class.instance_method(selector)
-			Context.default.adapt_class(adapted_class, selector, default_method)
+		if not Context.default.adapts?(selector)
+			default_method = adapted_class.instance_method(method_selector)
+			Context.default.adapt_class(adapted_class, method_selector, default_method)
 		end
 
 		# If the context is active, we should activate the new adaptation
@@ -138,14 +141,14 @@ class Context
 	end
 	
 	# Return the adaptation for a selector method in a_class
-	def get_adaptation(a_class, selector)
+	def get_adaptation(selector)
 		@adaptations.each{|a| 
-			if a.adapted_class == a_class and a.selector == selector
+			if a.selector == selector
 				return a
 			end
 		}
 
-		# TODO what if not in adaptations
+		raise ArgumentError, "#{selector} is not adapted by #{self}"
 	end
 
 	##############
@@ -153,9 +156,9 @@ class Context
 	##############
 
 	# Return whether this contexts adapts the selector method in a_class
-	def adapts?(a_class, selector)
+	def adapts?(selector)
 		@adaptations.each { |adapted| 
-			if adapted.adapted_class == a_class and adapted.selector == selector
+			if adapted.selector == selector
 				return true
 			end
 		}	

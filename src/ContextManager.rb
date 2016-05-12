@@ -35,7 +35,7 @@ class ContextManager
 		next_adapt.deploy
 		
 		# Call the deployed adaptation on the caller object
-		r = obj.send(current.selector, args)
+		r = obj.send(current.selector.method, args)
 		
 		# Re-deploy the current again	
 		current.deploy
@@ -55,7 +55,7 @@ class ContextManager
 		
 		# Get the best adaptation to deploy according to 
 		# the policy considering the newly added adaptation
-		adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
+		adapt = best_adaptation(adaptation.selector)
 		
 		# Deploy the best adaptation
 		adapt.deploy
@@ -66,7 +66,7 @@ class ContextManager
 		@active_adaptations.delete(adaptation)
 		
 		# Get the best adaptation to deploy after deactivating 
-		next_adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
+		next_adapt = best_adaptation(adaptation.selector)
 		
 		# Deploy the best one
 		next_adapt.deploy
@@ -74,31 +74,31 @@ class ContextManager
 
 	# Get a sorted chain (according to the policy) 
 	# of all active adaptations for the 'selector' method in 'a_class'
-	def adaptation_chain(a_class, selector)
-		@active_adaptations.select {|a| 
-			a.adapts? a_class, selector}.sort(&@policy)
+	def adaptation_chain(selector)
+		@active_adaptations.select {|a| a.adapts? selector}.sort(&@policy)
 	end
 
 	# Returns the adaptation which is after 'current' in the chain
 	def adaptation_after(current)
-		first = adaptation_chain(current.adapted_class, current.selector)
+		first = adaptation_chain(current.selector)
 			.drop_while{|x| x != current}[1]
 
 		# Get default if no candidate adaptation available
 		if first.nil? 
-			first = Context.default.get_adaptation(current.adapted_class, current.selector)
+			first = Context.default.get_adaptation(current.selector)
 		end
 		first
 	end
 
 	# Getting the best adaptation to deploy according to the policy
-	def best_adaptation(aClass, selector)
+	def best_adaptation(selector)
+
 		# It is the first one in the ordered chain
-		first = adaptation_chain(aClass, selector).first
+		first = adaptation_chain(selector).first
 		
 		# Or the default if the chain is empty (no active adaptations for this method)
 		if first.nil? 
-			first = Context.default.get_adaptation(aClass, selector)
+			first = Context.default.get_adaptation(selector)
 		end
 		first
 	end
