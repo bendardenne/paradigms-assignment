@@ -3,13 +3,13 @@
 require 'set'
 
 
-#TODO jsut for my information, why it is relative
+# Adding the required modules
 require_relative 'ContextManager'
 require_relative 'ContextAdaptation'
 
 class Context
 
-	# TODO (is this right or we link the manager to each context?)mamager: if the context is the default, it should point to the context manager
+	# Tmamager: each context should point to the context manager
 	# multiple_activation: If it is allowed to activate this context multible times or not  
 	attr_reader :manager, :multiple_activation 
 
@@ -132,7 +132,7 @@ class Context
 		adaptation = ContextAdaptation.new(self, adapted_class, selector, implementation)	
 		@adaptations << adaptation							 
 
-		# TODO I didnt geet what is this exactly
+		# if the default has no implementation for the method, we store the current implimentation in the default
 		if not Context.default.adapts?(adapted_class, selector)
 			default_method = adapted_class.instance_method(selector)
 			Context.default.adapt_class(adapted_class, selector, default_method)

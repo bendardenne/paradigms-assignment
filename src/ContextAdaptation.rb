@@ -1,3 +1,4 @@
+# This class is used to define a context adaptation "context" of a method "selector" in a class "adapted_class" with new implementation "method" 
 class ContextAdaptation
 
 	attr_accessor :context, :adapted_class, :selector, :method	
@@ -13,10 +14,13 @@ class ContextAdaptation
 		@context.activation_age
 	end
 
+	# To deploy the adaptation
 	def deploy
 		m = @method
 		a = self
+		# TODO: deploy the new adaptation on the class
 		@adapted_class.send(:define_method, @selector, lambda{|params = m.parameters, adaptation = a| 
+			# TODO: Add the adaptation to proceeds stack to keep track of the adaptation that we are in currently
 			ContextManager.instance.proceeds = 
 			ContextManager.instance.proceeds.push(adaptation)
 			
@@ -29,20 +33,25 @@ class ContextAdaptation
 				m = Object.instance_method(:___fake_method_COP)
 			end	
 
+			# TODO: ??
 			r = m.bind(self).call(*params)
+			#TODO: ?? pop the adaptation from proceesds array after executing it 
 			ContextManager.instance.proceeds.pop
 			r
 		})
 	end
 
+	# Return true if the curret adaptation is adapting a method "selector" in "a_class"
 	def adapts?(a_class, selector)
 		self.adapted_class == a_class and self.selector == selector
 	end
 
+	# Return true if the "other" context adaptation adapts the same (method, class) of this context adaptation
 	def same_target?(other)
 		other.adapted_class == @adapted_class and other.selector == @selector
 	end
 
+	# ToString function
 	def to_s
 		"#{@context}##{@adapted_class}:#{@selector}"
 	end
