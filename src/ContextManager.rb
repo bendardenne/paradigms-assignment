@@ -9,7 +9,9 @@ class ContextManager
 
 	# To store active contexts
 	attr_reader :directory
-	# proceed: array to store the adaptations in order, so we know which adaptation should be called when we have "proceed"
+	
+	# proceed: array to store the adaptations in order, 
+	# so we know which adaptation should be called when we have "proceed"
 	# policy: to define the policy in which the manager will decide which adaptation should be called 
 	attr_accessor :proceeds, :policy
 	
@@ -21,20 +23,24 @@ class ContextManager
 		@policy = lambda {|c1, c2| c1.activation_age <=> c2.activation_age}
 	end
 
-	#TODO (can you please review this comment, I didnt understand it well) get the Proceed of the "obj"
+	# Deploy the next appropriate adaptation, and call in on obj with args
 	def proceed(obj, *args)
-		# The current context is the last item in the "proceeds" stack
+		# The current adaptation is the last item in the "proceeds" stack
 		current = @proceeds.last
-		# The next adaptation "proceeds the current"is the one before the current 
+		
+		# The next adaptation is the one before the current 
 		next_adapt = adaptation_after(current)
 		
 		# Deploy the proceed adaptation 
 		next_adapt.deploy
-		#TODO: get the implimentation of the proceed
+		
+		# Call the deployed adaptation on the caller object
 		r = obj.send(current.selector, args)
-		# Deploy the current again	
+		
+		# Re-deploy the current again	
 		current.deploy
-		# Return the implimentation of the proceed
+
+		# Return the result of the proceed
 		r
 	end
 
@@ -46,28 +52,34 @@ class ContextManager
 	def activate_adaptation(adaptation)
 		# Add the new adaptation to the active_adaptations array 
 		@active_adaptations << adaptation
-		# Get the best adaptation to deploy according to the policy considering the new added adaptation
+		
+		# Get the best adaptation to deploy according to 
+		# the policy considering the newly added adaptation
 		adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
+		
 		# Deploy the best adaptation
 		adapt.deploy
 	end
 
 	def deactivate_adaptation(adaptation)
-		# Remove the adaptation form the active_adaptations array
+		# Remove the adaptation from the active_adaptations array
 		@active_adaptations.delete(adaptation)
+		
 		# Get the best adaptation to deploy after deactivating 
 		next_adapt = best_adaptation(adaptation.adapted_class, adaptation.selector)
+		
 		# Deploy the best one
 		next_adapt.deploy
 	end
 
-	# Get a sorted chain according to the policy of all active adaptations for a method in aClass
-	def adaptation_chain(aClass, selector)
+	# Get a sorted chain (according to the policy) 
+	# of all active adaptations for the 'selector' method in 'a_class'
+	def adaptation_chain(a_class, selector)
 		@active_adaptations.select {|a| 
-			a.adapts? aClass, selector}.sort(&@policy)
+			a.adapts? a_class, selector}.sort(&@policy)
 	end
 
-	# This is used to know the adaptation to call as "proceeds" it is the one before the current in the chain
+	# Returns the adaptation which is after 'current' in the chain
 	def adaptation_after(current)
 		first = adaptation_chain(current.adapted_class, current.selector)
 			.drop_while{|x| x != current}[1]
@@ -79,7 +91,7 @@ class ContextManager
 		first
 	end
 
-	# Getting the adaptation to deploy according to the policy
+	# Getting the best adaptation to deploy according to the policy
 	def best_adaptation(aClass, selector)
 		# It is the first one in the ordered chain
 		first = adaptation_chain(aClass, selector).first

@@ -18,11 +18,12 @@ class ContextAdaptation
 	def deploy
 		m = @method
 		a = self
-		# TODO: deploy the new adaptation on the class
+
+		# Deploy the new adaptation on the class
 		@adapted_class.send(:define_method, @selector, lambda{|params = m.parameters, adaptation = a| 
-			# TODO: Add the adaptation to proceeds stack to keep track of the adaptation that we are in currently
-			ContextManager.instance.proceeds = 
-			ContextManager.instance.proceeds.push(adaptation)
+			# Add the adaptation to proceeds stack 
+			# to keep track of the adaptation that we are in currently
+			ContextManager.instance.proceeds = ContextManager.instance.proceeds.push(adaptation)
 			
 			# Get an UnboundMethod to bind to the calling object
 			if m.is_a? Method
@@ -33,20 +34,26 @@ class ContextAdaptation
 				m = Object.instance_method(:___fake_method_COP)
 			end	
 
-			# TODO: ??
+			# At this point we have an UnboundMethod
+			# Which we bind to the caller object (self) 
+			# and then we call the implementation
 			r = m.bind(self).call(*params)
-			#TODO: ?? pop the adaptation from proceesds array after executing it 
+
+			# Pop the adaptation from proceeds array after executing it 
 			ContextManager.instance.proceeds.pop
+			
+			# Return the result of the adapting implementation
 			r
 		})
 	end
 
-	# Return true if the curret adaptation is adapting a method "selector" in "a_class"
+	# Return true if the curret adaptation is adapting the method "selector" in "a_class"
 	def adapts?(a_class, selector)
 		self.adapted_class == a_class and self.selector == selector
 	end
 
-	# Return true if the "other" context adaptation adapts the same (method, class) of this context adaptation
+	# Return true if the "other" context adaptation adapts the same (method, class)
+	# of this context adaptation
 	def same_target?(other)
 		other.adapted_class == @adapted_class and other.selector == @selector
 	end

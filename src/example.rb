@@ -111,6 +111,7 @@ phone = Phone.new("Bob")
 	module MyOwnContext
 		def activate(multiple_adaptation)
 			@activation_count = 1 
+			@activation_age = Context.class_eval("@@age += 1") 
 			activate_adaptations
 		end
 	end
