@@ -11,6 +11,7 @@ ClassSelector = Struct.new(:a_class, :method)
 
 class Context
 
+
 	# multiple_activation: If it is allowed to activate this context multible times or not  
 	attr_reader :manager, :multiple_activation
 	attr_accessor :name
@@ -23,8 +24,8 @@ class Context
 	
 	def initialize(name = nil, multiple_activation: true)
 		@activation_count = 0
-		@adaptations = Set.new
 		@activation_age = 0
+		@adaptations = Set.new
 		@multiple_activation = multiple_activation
 		@name = name
 		@manager = ContextManager.instance
@@ -32,7 +33,8 @@ class Context
 	end
 
 
-	# Get the default context, if it is not created yet, a default context will be created and activated
+	# Get the default context. If it is not created yet, 
+	# a default context will be created and activated
 	def self.default 
 		if @@default == nil
 			@@default = Context.new("default")
@@ -71,14 +73,10 @@ class Context
 	# Deactivating the context
 	def deactivate
 		# Decrease the number of activation count
-		if @activation_count > 0
-			@activation_count -= 1
-		end
+		@activation_count -= 1 if @activation_count > 0
 
 		# After decreasing the count, if it is 0, we should deactivate the context adaptations
-		if not active? 
-			deactivate_adaptations
-		end
+		deactivate_adaptations if not active? 
 	end
 
 	# Discarding the context
@@ -104,11 +102,11 @@ class Context
 
 	# Implement an adaptation for the "selector" method in the "adapted_class" with the new "implementation"
 	def adapt_class(adapted_class, method_selector, implementation)
+		
 		selector = ClassSelector.new(adapted_class, method_selector)
-		# Make sure this context didn't adapt the same method before
-		if adapts?(selector)
-			raise ArgumentError, "#{self} already adapts #{selector}"
-		end
+
+		# Make sure this context isn't already adapting the same method before
+		raise ArgumentError, "#{self} already adapts #{selector}" if adapts? selector
 		
 		# Create the new adaptation and add it to the adaptations set
 		adaptation = ContextAdaptation.new(self, selector, implementation)	
@@ -122,18 +120,12 @@ class Context
 		end
 
 		# If the context is active, we should activate the new adaptation
-		if active? 
-			manager.activate_adaptation(adaptation)
-		end
+		manager.activate_adaptation(adaptation) if active?
 	end
 	
 	# Return the adaptation for a selector
 	def get_adaptation(selector)
-		@adaptations.each{|a| 
-			if a.selector == selector
-				return a
-			end
-		}
+		@adaptations.each{|a| return a if a.selector == selector }
 
 		raise ArgumentError, "#{selector} is not adapted by #{self}"
 	end
@@ -145,9 +137,7 @@ class Context
 	# Return whether this contexts adapts this selector
 	def adapts?(selector)
 		@adaptations.each { |adapted| 
-			if adapted.selector == selector
-				return true
-			end
+			return true if adapted.selector == selector
 		}	
 		return false
 	end
@@ -159,10 +149,8 @@ class Context
 
 	# ToString, if the context has no name, it is Anonymous context
 	def to_s
-		if @name == nil
-			return "Anonymous context"
-		end
-
+		return "Anonymous context" if @name == nil
+		
 		return "#{@name} context" 
 	end
 end

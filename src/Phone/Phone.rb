@@ -2,7 +2,7 @@ require_relative '../ContextModule'
 
 class Phone
 
-	include ContextModule
+#	include ContextModule
 
 	def initialize(name)
 		@owner = name 

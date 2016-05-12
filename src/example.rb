@@ -101,15 +101,31 @@ phone = Phone.new("Bob")
 	quiet.activate 
 	Context.default.activate	# Default activated after quiet
 	puts phone.advertise(call)	# Quiet is the current adaptation
+
+
+#### Multiple arguments methods
+	Context.default.manager.policy = origPolicy 
+	context = Context.new()
+	
+	class E 
+		def foo(x,y,z)
+			x + y + z
+		end
+	end
+
+
+	context.adapt_class(E, :foo, lambda {|x, y, z| x * y * z})
+	context.activate
+
+	puts E.new().foo(4,5,6)
 	
 
 #### Context adapting itself 
 
-	Context.default.manager.policy = origPolicy 
-	context = Context.new()
 
+	## This activate method does not increase the activation count
 	module MyOwnContext
-		def activate(multiple_adaptation)
+		def activate
 			@activation_count = 1 
 			@activation_age = Context.class_eval("@@age += 1") 
 			activate_adaptations
