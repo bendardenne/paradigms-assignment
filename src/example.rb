@@ -34,9 +34,6 @@ phone = Phone.new("Bob")
 #### Activate Screening
 	screening = Context. new("screening")
 
-	require_relative "ContextModule"
-	include ContextModule
-
 	# Context can adapt different methods
 	screening.adapt_class(Phone, :receive, 
 		ScreeningPhone.instance_method(:advertise_screening))		

@@ -43,9 +43,8 @@ class ContextAdaptation
 			 lambda{|*args| 
 				# Add the adaptation to proceeds stack 
 				# to keep track of the adaptation that we are in currently
-				ContextManager.instance.proceeds = ContextManager.instance.proceeds.push(a)
+				ContextManager.instance.proceeds.push(a)
 				
-
 				# The UnboundMethod is bounnd to the caller object (self) 
 				# then called with the given parameters
 				r = m.bind(self).call(*args)
